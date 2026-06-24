@@ -4,7 +4,6 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net/http"
-	"sync"
 	"time"
 
 	"github.com/ibrahima-gh/vps-health/internal/config"
@@ -19,20 +18,10 @@ type Result struct {
 	Err        error
 }
 
-func CheckAll(targets []config.Target, timeout time.Duration) []Result {
-	results := make([]Result, len(targets))
-	var wg sync.WaitGroup
-
-	for i, t := range targets {
-		wg.Add(1)
-		go func(i int, t config.Target) {
-			defer wg.Done()
-			results[i] = check(t, timeout)
-		}(i, t)
+func CheckAll(targets []config.Target, timeout time.Duration, onResult func(Result)) {
+	for _, t := range targets {
+		onResult(check(t, timeout))
 	}
-
-	wg.Wait()
-	return results
 }
 
 func check(target config.Target, timeout time.Duration) Result {

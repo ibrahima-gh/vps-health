@@ -22,17 +22,16 @@ func main() {
 
 	fmt.Printf("checking %d targets (timeout: %ds)...\n\n", len(cfg.Targets), cfg.TimeoutSeconds)
 
-	timeout := time.Duration(cfg.TimeoutSeconds) * time.Second
-	results := checker.CheckAll(cfg.Targets, timeout)
-
 	green := color.New(color.FgGreen).SprintfFunc()
 	red := color.New(color.FgRed).SprintfFunc()
 	yellow := color.New(color.FgYellow).SprintfFunc()
 
-	for _, r := range results {
+	timeout := time.Duration(cfg.TimeoutSeconds) * time.Second
+
+	checker.CheckAll(cfg.Targets, timeout, func(r checker.Result) {
 		if r.Err != nil {
 			fmt.Printf("%s  %-20s  %s\n", red("✗"), r.Name, red(r.Err.Error()))
-			continue
+			return
 		}
 
 		ssl := "no TLS"
@@ -52,5 +51,5 @@ func main() {
 			r.Latency.Round(time.Millisecond),
 			ssl,
 		)
-	}
+	})
 }
