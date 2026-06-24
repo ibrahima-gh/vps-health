@@ -1,0 +1,6 @@
+timeout_seconds: 10
+
+targets:
+
+  - name: Google
+    url: https://google.com
